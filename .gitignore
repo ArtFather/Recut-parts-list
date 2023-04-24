@@ -362,7 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Config gile
-App.config
-/WindowsFormsApp1/App.config
 /WindowsFormsApp1/App.config

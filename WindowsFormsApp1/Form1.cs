@@ -35,7 +35,7 @@ namespace WindowsFormsApp1
         int filterOption = 1;
         int errorCounter = 0;
         int updateCounter = 0;
-        int recordsToCut = 10;
+        int recordsToCut = 100;
 
         public Form1()
         {
@@ -57,7 +57,7 @@ namespace WindowsFormsApp1
 
         public async void getData()
         {
-
+            records.Clear();
             string appKey = ConfigurationManager.AppSettings["appKey"];
             string baseId = ConfigurationManager.AppSettings["baseId"];
             string table = ConfigurationManager.AppSettings["table"];
@@ -68,7 +68,9 @@ namespace WindowsFormsApp1
             string timeZone = "America/North_Dakota/Center";
             string cellFormat = "string";
             string userLocale = "en-ca";
-           
+            //string filterByFormula = "{Mill Routing Code} = 2";
+            string filterByFormula = "FIND('1', {Mill Routing Code}) > 0";
+
 
            // button2.Visible = false;
             timer1.Interval = 120000;
@@ -88,7 +90,7 @@ namespace WindowsFormsApp1
                                    table,
                                    offset,
                                    fields,
-                                   null,
+                                   filterByFormula,
                                    null,
                                    null,
                                    null,

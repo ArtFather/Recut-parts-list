@@ -28,7 +28,11 @@ namespace WindowsFormsApp1
                 checkbox.Location = new Point(10, i);
                 checkbox.CheckedChanged += new EventHandler(Changecheck);
 
-                if(column.Visible != true)
+                if (column.Visible != true)
+                {
+                    checkbox.Checked = false;
+                }
+                else
                 {
                     checkbox.Checked = true;
                 }
@@ -42,7 +46,7 @@ namespace WindowsFormsApp1
         private void Changecheck(object sender, EventArgs e)
         {
             CheckBox checkbox = sender as CheckBox;
-            if(checkbox.CheckState.ToString() != "Checked")
+            if(checkbox.CheckState.ToString() != "Unchecked")
             {
                 dataGridView1.Columns[checkbox.Text].Visible = true;
             }
@@ -57,11 +61,6 @@ namespace WindowsFormsApp1
         {
 
             this.Close();
-        }
-
-        private void Form2_Load(object sender, EventArgs e)
-        {
-          
         }
     }
 }

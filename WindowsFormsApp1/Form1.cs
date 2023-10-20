@@ -1,4 +1,5 @@
 ﻿using AirtableApiClient;
+using Recut;
 using System;
 using System.Buffers.Text;
 using System.Collections;
@@ -12,6 +13,7 @@ using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +30,7 @@ namespace WindowsFormsApp1
     {
         DataTable dt = new DataTable();
         List<AirtableRecord> records = new List<AirtableRecord>();
+        List<AirtableRecord> cutRecords = new List<AirtableRecord>();
         public IEnumerable<string> fields = new string[] { "Order #", "Part # +", "QTY", "NAME", "DATE", "Run Number (from Master List)", "MATERIAL/COLOUR", "REASON FOR REORDER", "Mill Routing Code", "COMMENT", "WC #", "Optimized", "Optimized Date", "Rush", "Cut @ Router Time" };
         string filterField = "Mill Routing Code";
         string selecedColumn = "Mill Routing Code";
@@ -36,6 +39,7 @@ namespace WindowsFormsApp1
         int errorCounter = 0;
         int updateCounter = 0;
         int recordsToCut = 100;
+
 
         public Form1()
         {
@@ -69,11 +73,10 @@ namespace WindowsFormsApp1
             string cellFormat = "string";
             string userLocale = "en-ca";
             //string filterByFormula = "{Mill Routing Code} = 2";
-            string filterByFormula = "FIND('1', {Mill Routing Code}) > 0";
+            //string filterByFormula = "FIND('1', {Mill Routing Code}) > 0";
 
 
            // button2.Visible = false;
-            timer1.Interval = 120000;
             updatesCounterL.Text = updateCounter++.ToString();
                 
                 label7.Visible = true;
@@ -90,7 +93,7 @@ namespace WindowsFormsApp1
                                    table,
                                    offset,
                                    fields,
-                                   filterByFormula,
+                                   null,
                                    null,
                                    null,
                                    null,
@@ -153,7 +156,7 @@ namespace WindowsFormsApp1
 
         private void updateTable()
         {
-            List<AirtableRecord> cutRecords = new List<AirtableRecord>();
+            cutRecords.Clear();
             dt.Clear();
             recordsToCut = string.IsNullOrEmpty(textBox2.Text) ? 0 : int.Parse(textBox2.Text);
             cutRecords.AddRange(records.AsEnumerable().Reverse().Take(recordsToCut));
@@ -205,13 +208,29 @@ namespace WindowsFormsApp1
                         myRow.DefaultCellStyle.BackColor = Color.LightGreen;
                     }
                 }
-                if (dataGridView1.Rows.Count != 0)
-                {
-                    //dataGridView1.FirstDisplayedScrollingRowIndex = dataGridView1.Rows.Count - 1;
-                }
-                
             }
+            
+            int countRecords = 0;
+            for (int i = 0; i < dataGridView1.Rows.Count; ++i)
+            {
+                countRecords += Convert.ToInt32(dataGridView1.Rows[i].Cells[2].Value);
+            }
+            label8.Text = countRecords.ToString();
+
         }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.S))
+            {
+                Setting setting = new Setting();
+                setting.Show();
+
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+       
 
         private void button1_Click_1(object sender, EventArgs e)
         {
@@ -300,12 +319,6 @@ namespace WindowsFormsApp1
             filterProcessor("Cut @ Router Time", "", 2);
         }
 
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            selecedColumn = fields.ElementAt(e.ColumnIndex);
-            label1.Text = selecedColumn;
-        }
-
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             filterProcessor(selecedColumn, textBox1.Text, 1);
@@ -314,12 +327,6 @@ namespace WindowsFormsApp1
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.dataGridView1.DefaultCellStyle.Font = new Font("Tahoma", int.Parse(comboBox1.GetItemText(comboBox1.SelectedItem)));
-        }
-
-        private void dataGridView1_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            Form2 form2 = new Form2();
-            form2.Show();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -336,6 +343,18 @@ namespace WindowsFormsApp1
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
             updateTable();
+        }
+
+        private void dataGridView1_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            selecedColumn = fields.ElementAt(e.ColumnIndex);
+            label1.Text = selecedColumn;
+        }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            Form2 form2 = new Form2();
+            form2.Show();
         }
     }
 }
